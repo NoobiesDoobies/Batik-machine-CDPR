@@ -28,14 +28,19 @@ float l4Prev = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(
 
 
 
-float X[100] = {0};
-float Y[100] = {0};
-float Z[100] = {0};
+// float X[4] = {150.0 + boxLength/2.0, -150.0 + boxLength/2.0, -150.0 + boxLength/2.0, 150.0 + boxLength/2.0};
+// float Y[4] = {150.0 + boxWidth/2.0,  150.0 + boxWidth/2.0,  -150.0 + boxWidth/2.0,  -150.0 + boxWidth/2.0};
+// float Z[4] = {0};
+
+const int n = 20;
+float X[n] = {0};
+float Y[n] = {0};
+float Z[n] = {0};
 
 void initXYZ(){
-  for (int i = 0; i < 100; i++) {
-    X[i] = 150.0*cosf(i/100.0*2*PI)/fmaxf(fabs(cosf(i/100.0*2*PI)), fabs(sinf(i/100.0*2*PI))) + boxLength/2.0;
-    Y[i] = 150.0*sinf(i/100.0*2*PI)/fmaxf(fabs(cosf(i/100.0*2*PI)), fabs(sinf(i/100.0*2*PI))) + boxWidth/2.0;
+  for (int i = 0; i < n; i++) {
+    X[i] = 150.0*cosf((float) i/n*2*PI)/fmaxf(fabs(cosf((float) i/n*2*PI)), fabs(sinf((float) i/n*2*PI))) + boxLength/2.0;
+    Y[i] = 150.0*sinf((float) i/n*2*PI)/fmaxf(fabs(cosf((float) i/n*2*PI)), fabs(sinf((float) i/n*2*PI))) + boxWidth/2.0;
     Z[i] = 170.0;
   }
 }
@@ -57,10 +62,10 @@ void calculateIK(int i){
     l4 = sqrt(pow(sqrt(pow(boxLength - (X[i] + effectorLength/2.0), 2.0) + pow(Y[i] - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0)              + pow(Z[i], 2.0));
 
     // Step size needed for the new wire length
-    step1 = -(int) truncate((l1 - l1Prev)/stepAmount);
-    step2 = -(int) truncate((l2 - l2Prev)/stepAmount);
-    step3 = -(int) truncate((l3 - l3Prev)/stepAmount);
-    step4 = -(int) truncate((l4 - l4Prev)/stepAmount);
+    step1 += -(int) truncate((l1 - l1Prev)/stepAmount);
+    step2 += -(int) truncate((l2 - l2Prev)/stepAmount);
+    step3 += -(int) truncate((l3 - l3Prev)/stepAmount);
+    step4 += -(int) truncate((l4 - l4Prev)/stepAmount);
 
 
 

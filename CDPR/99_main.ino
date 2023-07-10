@@ -6,17 +6,17 @@ bool isModified = false;
 
 void setup() {
     
-  initWiFi();
+//  initWiFi();
   initXYZ();
   initStepper();
   Serial.begin(9600);
-  handleGetRoot();
+//  handleGetRoot();
 
 
-  server.addHandler(&events);
+//  server.addHandler(&events);
 
   // Start server
-  server.begin();
+//  server.begin();
 }
 
 
@@ -26,7 +26,7 @@ void loop() {
   }
   if (programStart == '1') { 
     // Inverse kinematics
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < n; i++) {
       calculateIK(i);
   
       // Run the stepper
@@ -34,7 +34,3 @@ void loop() {
     }
   }
 }
-
-
-
-
