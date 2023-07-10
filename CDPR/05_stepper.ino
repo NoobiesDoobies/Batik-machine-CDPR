@@ -25,19 +25,15 @@ void initStepper(){
 
 void smoothStep(int pin) {
   digitalWriteFast(pin, HIGH);
-  delayMicroseconds(50);
+  delayMicroseconds(100);
   digitalWriteFast(pin, LOW);
-  delayMicroseconds(50);
+  delayMicroseconds(100);
   //for (int i = 1; i <= 4; i++) {
   //  digitalWriteFast(pin, (1.0 - cosf(PI*i/2.0))/2.0);
   //}
 }
 
 void gerakStepper(int step1, int step2, int step3, int step4) {
-    Serial.println(step1);
-    Serial.println(step2);
-    Serial.println(step3);
-    Serial.println(step4);
   // Maximum step
   int stepMax = max(max(abs(step1), abs(step2)), max(abs(step3), abs(step4)));
 
