@@ -28,10 +28,8 @@ float l1 = 0.0;
 float l2 = 0.0;
 float l3 = 0.0;
 float l4 = 0.0;
-int step1;
-int step2;
-int step3;
-int step4;
+int steps[n][4];
+
 float l1Prev = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(boxWidth/2.0 - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0) + pow(zBias, 2.0));
 float l2Prev = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(boxWidth/2.0 - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0) + pow(zBias, 2.0));
 float l3Prev = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(boxWidth/2.0 - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0) + pow(zBias, 2.0));
@@ -77,6 +75,35 @@ void calculateDecelerationFactor(){
     // Serial.println(String(i) + " " + String(angle*180/M_PI) );
     Serial.println(String(i) + " " + String(decelerationFactor[i]) );
 
+  }
+}
+
+int* getStepForEachMotor(struct Point point){
+    // Wire length for given coordinates
+    l1 = sqrt(pow(sqrt(pow(boxLength - (point.x + effectorLength/2.0), 2.0) + pow(boxWidth - (point.y + effectorWidth/2.0), 2.0)) - vertexRadius, 2.0) + pow(point.z, 2.0));
+    l2 = sqrt(pow(sqrt(pow(point.x - effectorLength/2.0, 2.0)               + pow(boxWidth - (point.y + effectorWidth/2.0), 2.0)) - vertexRadius, 2.0) + pow(point.z, 2.0));
+    l3 = sqrt(pow(sqrt(pow(point.x - effectorLength/2.0, 2.0)               + pow(point.y - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0)              + pow(point.z, 2.0));
+    l4 = sqrt(pow(sqrt(pow(boxLength - (point.x + effectorLength/2.0), 2.0) + pow(point.y - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0)              + pow(point.z, 2.0));
+    
+    // Set previous wire length to the current length
+    l1Prev = l1;
+    l2Prev = l2;
+    l3Prev = l3;
+    l4Prev = l4;
+
+    // Step size needed for the new wire length
+    int tempSteps[4];
+    tempSteps[0] = -(int) truncate((l1 - l1Prev)/stepAmount);
+    tempSteps[1] = -(int) truncate((l2 - l2Prev)/stepAmount);
+    tempSteps[2] = -(int) truncate((l3 - l3Prev)/stepAmount);
+    tempSteps[3] = -(int) truncate((l4 - l4Prev)/stepAmount);
+
+    return tempSteps;
+}
+
+void calculateStepsForEachPoint(){
+  for(int i = 0; i < n; i++){
+    *steps[i] = getStepForEachMotor(points[i]);
   }
 }
 
@@ -144,24 +171,3 @@ float truncate(float x) {
   }
 }
 
-void calculateIK(struct Point point){
-    // Wire length for given coordinates
-    l1 = sqrt(pow(sqrt(pow(boxLength - (point.x + effectorLength/2.0), 2.0) + pow(boxWidth - (point.y + effectorWidth/2.0), 2.0)) - vertexRadius, 2.0) + pow(point.z, 2.0));
-    l2 = sqrt(pow(sqrt(pow(point.x - effectorLength/2.0, 2.0)               + pow(boxWidth - (point.y + effectorWidth/2.0), 2.0)) - vertexRadius, 2.0) + pow(point.z, 2.0));
-    l3 = sqrt(pow(sqrt(pow(point.x - effectorLength/2.0, 2.0)               + pow(point.y - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0)              + pow(point.z, 2.0));
-    l4 = sqrt(pow(sqrt(pow(boxLength - (point.x + effectorLength/2.0), 2.0) + pow(point.y - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0)              + pow(point.z, 2.0));
-
-    // Step size needed for the new wire length
-    step1 = -(int) truncate((l1 - l1Prev)/stepAmount);
-    step2 = -(int) truncate((l2 - l2Prev)/stepAmount);
-    step3 = -(int) truncate((l3 - l3Prev)/stepAmount);
-    step4 = -(int) truncate((l4 - l4Prev)/stepAmount);
-
-
-
-    // Set previous wire length to the current length
-    l1Prev = l1;
-    l2Prev = l2;
-    l3Prev = l3;
-    l4Prev = l4;
-}

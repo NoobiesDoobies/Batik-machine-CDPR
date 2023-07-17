@@ -52,43 +52,43 @@ void step(int pin, float speed) {
   delayMicroseconds(convertSpeedToDelayus(speed));
 }
 
-void gerakStepper(int step1, int step2, int step3, int step4, float currentDecelerationFactor, float nextDecelarationFactor) {
+void gerakStepper(int steps[], float currentDecelerationFactor, float nextDecelarationFactor) {
   // Maximum step
-  int stepMax = max(max(abs(step1), abs(step2)), max(abs(step3), abs(step4)));
+  int stepMax = max(max(abs(steps[0]), abs(steps[1])), max(abs(steps[2]), abs(steps[3])));
 
   // Set the spinning direction:
-  digitalWriteFast(dirPin3, (step1 >= 0));
-  digitalWriteFast(dirPin1, (step2 >= 0));
-  digitalWriteFast(dirPin2, (step3 >= 0));
-  digitalWriteFast(dirPin4, (step4 >= 0));
+  digitalWriteFast(dirPin3, (steps[0] >= 0));
+  digitalWriteFast(dirPin1, (steps[1] >= 0));
+  digitalWriteFast(dirPin2, (steps[2] >= 0));
+  digitalWriteFast(dirPin4, (steps[3] >= 0));
 
   // Step all the steppers simultaneously
   for (int i = 1; i <= stepMax; i++) {
     float speed = calculateSpeed(stepMax, i, currentDecelerationFactor, nextDecelarationFactor);
     // 1st stepper
-    if (step1 != 0) {
-      if ((int) floor(fmodf(i, (float) stepMax/fabs(step1))) == 0) {
+    if (steps[0] != 0) {
+      if ((int) floor(fmodf(i, (float) stepMax/fabs(steps[0]))) == 0) {
         step(stepPin3, speed);
       }
     }
 
     // 2nd stepper
-    if (step2 != 0) {
-      if ((int) floor(fmodf(i, (float) stepMax/fabs(step2))) == 0) {
+    if (steps[1] != 0) {
+      if ((int) floor(fmodf(i, (float) stepMax/fabs(steps[1]))) == 0) {
         step(stepPin1, speed);
       }
     }
 
     // 3rd stepper
-    if (step3 != 0) {
-      if ((int) floor(fmodf(i, (float) stepMax/fabs(step3))) == 0) {
+    if (steps[2] != 0) {
+      if ((int) floor(fmodf(i, (float) stepMax/fabs(steps[2]))) == 0) {
         step(stepPin2, speed);
       }
     }
 
     // 4th stepper
-    if (step4 != 0) {
-      if ((int) floor(fmodf(i, (float) stepMax/fabs(step4))) == 0) {
+    if (steps[3] != 0) {
+      if ((int) floor(fmodf(i, (float) stepMax/fabs(steps[3]))) == 0) {
         step(stepPin4, speed);
       }
     }
