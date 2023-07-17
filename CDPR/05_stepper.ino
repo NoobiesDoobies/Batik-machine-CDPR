@@ -37,8 +37,8 @@ float smoothStepFunction(float x) {
   }
 }
 
-float calculateSpeed(int totalStep, int nthStep, float currentSpeed, float nextSpeed) {
-  return pow(currentSpeed, 2.0)*(1 - smoothStepFunction(2*(float) nthStep/totalStep)) + pow(nextSpeed, 2.0)*smoothStepFunction(2*(float) nthStep/totalStep - 1.0);
+float calculateSpeed(int totalStep, int nthStep, float currentDecelerationFactor, float nextDecelarationFactor) {
+  return pow(currentDecelerationFactor, 2.0)*(1 - smoothStepFunction(2*(float) nthStep/totalStep)) + pow(nextDecelarationFactor, 2.0)*smoothStepFunction(2*(float) nthStep/totalStep - 1.0);
 }
 
 int convertSpeedToDelayus(float speed){
@@ -52,7 +52,7 @@ void step(int pin, float speed) {
   delayMicroseconds(convertSpeedToDelayus(speed));
 }
 
-void gerakStepper(int step1, int step2, int step3, int step4, float currentSpeed, float nextSpeed) {
+void gerakStepper(int step1, int step2, int step3, int step4, float currentDecelerationFactor, float nextDecelarationFactor) {
   // Maximum step
   int stepMax = max(max(abs(step1), abs(step2)), max(abs(step3), abs(step4)));
 
@@ -64,7 +64,7 @@ void gerakStepper(int step1, int step2, int step3, int step4, float currentSpeed
 
   // Step all the steppers simultaneously
   for (int i = 1; i <= stepMax; i++) {
-    float speed = calculateSpeed(stepMax, i, currentSpeed, nextSpeed);
+    float speed = calculateSpeed(stepMax, i, currentDecelerationFactor, nextDecelarationFactor);
     // 1st stepper
     if (step1 != 0) {
       if ((int) floor(fmodf(i, (float) stepMax/fabs(step1))) == 0) {

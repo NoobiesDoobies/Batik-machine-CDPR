@@ -6,7 +6,7 @@ struct Point {
 const int n = 100;
 
 struct Point points[n];
-float speedFactor[n-2];
+float decelerationFactor[n-2];
 
 const float stepsPerRevolution = 1600.0 ;
 const float kelilingExtruder = PI*28.5 ; // mm
@@ -40,7 +40,7 @@ float l4Prev = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(
 
 float currentPosition[3] = {boxLength/2.0, boxWidth/2.0, zBias};
 
-float getSpeedFactor(struct Point point1, struct Point point2, struct Point point3){
+float getAngleBetweenPoints(struct Point point1, struct Point point2, struct Point point3){
     float a1 = point3.x - point2.x;
     float a2 = point3.y - point2.y;
     float a3 = point3.z - point2.z;
@@ -49,17 +49,34 @@ float getSpeedFactor(struct Point point1, struct Point point2, struct Point poin
     float b3 = point1.z - point2.z;
 
     float dot = a1*b1 + a2*b2 + a3*b3;
+
+    // Fungsi tan
     float cross = sqrt(pow(a1*b2 - b1*a2, 2.0) + pow(a2*b3 - a3*b2, 2.0) + pow(a3*b1 - a1*b3, 2.0));
-    float factor = 1.0 - fabs(atan2(dot, cross))/PI;
+    float angle = fabs(atan2(cross, dot));
+
+    // Fungsi cos
+    // float A2 = pow(a1, 2) + pow(a2, 2) + pow(a3,2);
+    // float B2 = pow(b1, 2) + pow(b2, 2) + pow(b3,2);
+    // float angle = fabs(acos(dot/sqrt(A2*B2)));
+
+    return angle;
+}
+
+float getDecelerationFactor(float angle){
+  float factor = 1.0 - angle/M_PI;
   return factor;
 }
 
-void calculateSpeedFactor(){
-  speedFactor[0] = 0.5;
-  speedFactor[n-1] = 0.5;
+void calculateDecelerationFactor(){
+  decelerationFactor[0] = 0.5;
+  decelerationFactor[n-1] = 0.5;
 
   for (int i = 1; i < n - 1; i++) {
-    speedFactor[i] = getSpeedFactor(points[i-1], points[i], points[i+1]);
+    float angle = getAngleBetweenPoints(points[i-1], points[i], points[i+1]);
+    decelerationFactor[i] = getDecelerationFactor(angle);
+    // Serial.println(String(i) + " " + String(angle*180/M_PI) );
+    Serial.println(String(i) + " " + String(decelerationFactor[i]) );
+
   }
 }
 
@@ -68,6 +85,15 @@ void initFirstPoint(){
   points[0].y = 0.0;
   points[0].z = 0.0;
 }
+
+void initRectanglePath(float a, float b){
+  for (int i = 0; i < n; i++) {
+    points[i].x = a*cosf(i/(float)n*2*PI)/fmaxf(fabs(cosf(i/(float)n*2*PI)), fabs(sinf(i/(float)n*2*PI))) + boxLength/2.0;
+    points[i].y = b*sinf(i/(float)n*2*PI)/fmaxf(fabs(cosf(i/(float)n*2*PI)), fabs(sinf(i/(float)n*2*PI))) + boxWidth/2.0;
+    points[i].z = zBias;
+  }
+}
+
 void initCirclePath(float R){
   for (int i = 0; i < n; i++) {
     points[i].x = R*cosf(i/(float)n*2*PI) + boxLength/2.0;
