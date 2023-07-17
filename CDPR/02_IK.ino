@@ -6,7 +6,7 @@ struct Point {
 const int n = 100;
 
 struct Point points[n];
-float angleBetweenPoints[n-2];
+float speedFactor[n-2];
 
 const float stepsPerRevolution = 1600.0 ;
 const float kelilingExtruder = PI*28.5 ; // mm
@@ -40,7 +40,7 @@ float l4Prev = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(
 
 float currentPosition[3] = {boxLength/2.0, boxWidth/2.0, zBias};
 
-float getAngleBetweenPoints(struct Point point1, struct Point point2, struct Point point3){
+float getSpeedFactor(struct Point point1, struct Point point2, struct Point point3){
     float a1 = point3.x - point2.x;
     float a2 = point3.y - point2.y;
     float a3 = point3.z - point2.z;
@@ -50,16 +50,16 @@ float getAngleBetweenPoints(struct Point point1, struct Point point2, struct Poi
 
     float dot = a1*b1 + a2*b2 + a3*b3;
     float cross = sqrt(pow(a1*b2 - b1*a2, 2.0) + pow(a2*b3 - a3*b2, 2.0) + pow(a3*b1 - a1*b3, 2.0));
-    float theta = PI - fabs(atan2(dot, cross));
-  return theta;
+    float factor = 1.0 - fabs(atan2(dot, cross))/PI;
+  return factor;
 }
 
-void calculateAngleBetweenPoints(){
-  angleBetweenPoints[0] = M_PI/2;
-  angleBetweenPoints[n-1] = M_PI/2;
+void calculateSpeedFactor(){
+  speedFactor[0] = 0.5;
+  speedFactor[n-1] = 0.5;
 
   for (int i = 1; i < n - 1; i++) {
-    angleBetweenPoints[i] = getAngleBetweenPoints(points[i-1], points[i], points[i+1]);
+    speedFactor[i] = getSpeedFactor(points[i-1], points[i], points[i+1]);
   }
 }
 

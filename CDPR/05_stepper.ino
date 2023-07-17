@@ -25,22 +25,34 @@ void initStepper(){
   pinMode(dirPin4, OUTPUT);
 }
 
+float smoothStepFunction(float x) {
+  if (x < 0) {
+    return 0;
+  }
+  else if (x > 1) {
+    return 1;
+  }
+  else {
+    return x*x*(3 - 2*x);
+  }
+}
+
+float calculateSpeed(int totalStep, int nthStep, float currentSpeed, float nextSpeed) {
+  return pow(currentSpeed, 2.0)*(1 - smoothStepFunction(2*(float) nthStep/totalStep)) + pow(nextSpeed, 2.0)*smoothStepFunction(2*(float) nthStep/totalStep - 1.0);
+}
+
 int convertSpeedToDelayus(float speed){
   return (minDelayPerStep - maxDelayPerStep) * speed + maxDelayPerStep;
 }
 
-void smoothStep(int pin, float speed) {
+void step(int pin, float speed) {
   digitalWriteFast(pin, HIGH);
   delayMicroseconds(convertSpeedToDelayus(speed));
   digitalWriteFast(pin, LOW);
   delayMicroseconds(convertSpeedToDelayus(speed));
-  
-  //for (int i = 1; i <= 4; i++) {
-  //  digitalWriteFast(pin, (1.0 - cosf(PI*i/2.0))/2.0);
-  //}
 }
 
-void gerakStepper(int step1, int step2, int step3, int step4) {
+void gerakStepper(int step1, int step2, int step3, int step4, float currentSpeed, float nextSpeed) {
   // Maximum step
   int stepMax = max(max(abs(step1), abs(step2)), max(abs(step3), abs(step4)));
 
@@ -52,31 +64,32 @@ void gerakStepper(int step1, int step2, int step3, int step4) {
 
   // Step all the steppers simultaneously
   for (int i = 1; i <= stepMax; i++) {
+    float speed = calculateSpeed(stepMax, i, currentSpeed, nextSpeed);
     // 1st stepper
     if (step1 != 0) {
       if ((int) floor(fmodf(i, (float) stepMax/fabs(step1))) == 0) {
-        smoothStep(stepPin3, 0.5);
+        step(stepPin3, speed);
       }
     }
 
     // 2nd stepper
     if (step2 != 0) {
       if ((int) floor(fmodf(i, (float) stepMax/fabs(step2))) == 0) {
-        smoothStep(stepPin1, 0.5);
+        step(stepPin1, speed);
       }
     }
 
     // 3rd stepper
     if (step3 != 0) {
       if ((int) floor(fmodf(i, (float) stepMax/fabs(step3))) == 0) {
-        smoothStep(stepPin2, 0.5);
+        step(stepPin2, speed);
       }
     }
 
     // 4th stepper
     if (step4 != 0) {
       if ((int) floor(fmodf(i, (float) stepMax/fabs(step4))) == 0) {
-        smoothStep(stepPin4, 0.5);
+        step(stepPin4, speed);
       }
     }
   }

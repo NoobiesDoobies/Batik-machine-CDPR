@@ -43,13 +43,13 @@ void loop() {
         currentPosition[0] = points[i].x;
         currentPosition[1] = points[i].y;
         currentPosition[2] = points[i].z;
-        gerakStepper(step1, step2, step3, step4);
+        gerakStepper(step1, step2, step3, step4, speedFactor[i], speedFactor[i+1]);
         i++;
         if(i == n){
           i = 0;
         }
         // Serial.println("x: " + String(currentPosition[0]) + " y: " + String(currentPosition[1]) + " z: " + currentPosition[2]);
-        readLoadCell();
+        // readLoadCell();
       }
 
       break;
@@ -64,7 +64,7 @@ void loop() {
       Point point = {x,y,zBias};
       calculateIK(point);
       Serial.println(String(x) + " " + String(y));
-      gerakStepper(step1, step2, step3, step4);
+      gerakStepper(step1, step2, step3, step4, 0.5, 0.5);
       programStart = -999;
 
       currentPosition[0] = x;
