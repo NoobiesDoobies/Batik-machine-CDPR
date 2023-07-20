@@ -3,7 +3,7 @@ struct Point {
   float y;
   float z;
 };
-const int n = 100;
+const int n = 4;
 
 struct Point points[n];
 float decelerationFactor[n-2];
@@ -72,8 +72,9 @@ void calculateDecelerationFactor(){
   for (int i = 1; i < n - 1; i++) {
     float angle = getAngleBetweenPoints(points[i-1], points[i], points[i+1]);
     decelerationFactor[i] = getDecelerationFactor(angle);
-    // Serial.println(String(i) + " " + String(angle*180/M_PI) );
-    Serial.println(String(i) + " " + String(decelerationFactor[i]) );
+    // Serial.println(angle*180/M_PI);
+    // Serial.println(String(i) + " " + String(angle*180/M_PI) + " " + String(n));
+    // Serial.println(String(i) + " " + String(decelerationFactor[i]) );
 
   }
 }

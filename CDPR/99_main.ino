@@ -13,13 +13,13 @@ void setup() {
 
   initStepper();
   Serial.begin(9600);
+  // initLoadCell();
+
   // handleGetRoot();
-  initLoadCell();
-
   // server.addHandler(&events);
-
   // Start server
   // server.begin();
+
   calculateDecelerationFactor();
   calculateStepsForEachPoint();
 }
@@ -49,6 +49,7 @@ void loop() {
         currentPosition[0] = points[i].x;
         currentPosition[1] = points[i].y;
         currentPosition[2] = points[i].z;
+        
         gerakStepper(steps[i], decelerationFactor[i], decelerationFactor[i+1]);
         i++;
         if(i == n){
@@ -89,7 +90,7 @@ void loop() {
   }
  
   // Serial.println("x: " + String(currentPosition[0]) + " y: " + String(currentPosition[1]) + " z: " + currentPosition[2]);
-  // readLoadCell();
+  readLoadCell();
 }
 
 
