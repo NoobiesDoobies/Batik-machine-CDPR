@@ -5,23 +5,44 @@ String sData, data[10];
 bool isModified = false;
 
 void setup() {
+  Serial.begin(9600);
+
   // initWiFi();
-  initFirstPoint();
+  // initFirstPoint();
   initCirclePath(150.0);
-  // initFlowerPath(150.0, 3);
-  // initRectanglePath(150.0, 150.0);
+  // initZeroPath();
+  // initSpiralPath(150.0, 0.00, 4);
+  // initFlowerPath(150.0, 5);
+  // initRectanglePath(75.0,  75.0);
+  // initEightPath(150.0);
 
   initStepper();
-  Serial.begin(9600);
-  // initLoadCell();
+  initLoadCell();
 
   // handleGetRoot();
   // server.addHandler(&events);
   // Start server
   // server.begin();
+  
+  // printCoordinateForEachPoint();
+  calculateStepsForEachPoint();
+  mergePathForFirstIteration();
+
+  calculateAngleForEachPoint();
 
   calculateDecelerationFactor();
-  calculateStepsForEachPoint();
+  smoothingAccUsingMovingAvg(decelerationFactor, n, SMOOTHING_WINDOW_SIZE, processedDecelerationFactor);
+
+  // printAngleForEachPoint();
+  // printStepsForEac hPoint();
+
+
+  // printProcessedAngleForEachPoint();
+
+  // Serial.println("Sebelum\tSesudah\tAngle");
+  // for(int i = 0; i < n ; i++){
+  //   Serial.println(String(decelerationFactor[i]) + "\t" + String(processedDecelerationFactor[i]) + "\t" + String(angles[i]));
+  // }
 }
 
 
@@ -32,31 +53,67 @@ void loop() {
   switch(programStart){
     case '0':
     {
-      Point point = {boxLength/2.0, boxWidth/2.0, zBias};
+      int tempSteps[4];
+      updateLPrev(lastPosition);
+      // Serial.print(String(l1Prev) + " ");
 
-      int *tempSteps = getStepForEachMotor(point);
-      gerakStepper(tempSteps, 0.5, 0.5);
+      Point home = {boxLength/2.0, boxWidth/2.0, zBias};
 
-      currentPosition[0] = boxLength/2.0;
-      currentPosition[1] = boxWidth/2.0;
-      currentPosition[2] = zBias;
+      getStepForEachMotor(home, tempSteps);
+      // Serial.print(String(l1) + " ");
+      // Serial.print(String(l1Prev) + " ");
+      // Serial.print(String(tempSteps[0]) + " ");
+      // Serial.print(String(tempSteps[1]) + " ");
+      // Serial.print(String(tempSteps[2]) + " ");
+      // Serial.println(String(tempSteps[3]));
+      gerakStepper(tempSteps, 0.5);
+
+      lastPosition = home;
+
+      programStart = -999;
+      
+
       break;
     }
     case '1':
     {   
-      int i = 0;
+      int tempSteps[4];
+      Point home = {boxLength/2.0, boxWidth/2.0, zBias};
+      updateLPrev(home);
+      getStepForEachMotor(points[0], tempSteps);
+      // gerakStepper(tempSteps, 0.5);
+      // Serial.print("Initial step\t");
+      // Serial.println(tempSteps[0]);
+      // Serial.println("Done initial step");
+      
+      int i = 1;
+      Serial.flush();
+      Serial.read();
       while(!Serial.available()){
-        currentPosition[0] = points[i].x;
-        currentPosition[1] = points[i].y;
-        currentPosition[2] = points[i].z;
-        
-        gerakStepper(steps[i], decelerationFactor[i], decelerationFactor[i+1]);
+
+        gerakStepper(steps[i], processedDecelerationFactor[i]);
+
+        lastPosition.x = points[i].x;
+        lastPosition.y = points[i].y;
+        lastPosition.z = points[i].z;
+        // printStepsForEachPoint();
+        // Serial.print("(LOAD CELL) " + String(i) + "\t");
+        readLoadCell();
+        // printLoadCellValue();
+        // autoCalibrateForce();
+        // printCompensateCounter();
+        Serial.println();
+
         i++;
         if(i == n){
+          mergePathForFirstIteration();
           i = 0;
+          // programStart = 0;
+          // break;
+
         }
-        // Serial.println("x: " + String(currentPosition[0]) + " y: " + String(currentPosition[1]) + " z: " + currentPosition[2]);
-        // readLoadCell();
+      
+        // Serial.println("x: " + String(lastPosition.x) + " y: " + String(lastPosition.y) + " z: " + lastPosition.z);
       }
 
       break;
@@ -70,14 +127,15 @@ void loop() {
       Serial.read();
 
       Point point = {x,y,zBias};
-      int *tempSteps = getStepForEachMotor(point);
+      int tempSteps[4];
+      getStepForEachMotor(point, tempSteps);
       Serial.println(String(x) + " " + String(y));
 
-      gerakStepper(tempSteps, 0.5, 0.5);
+      gerakStepper(tempSteps, 0.5);
 
-      currentPosition[0] = x;
-      currentPosition[1] = y;
-      currentPosition[2] = zBias;
+      lastPosition.x = x;
+      lastPosition.y = y;
+      lastPosition.z = zBias;
 
       programStart = -999;
       break;
@@ -89,8 +147,8 @@ void loop() {
 
   }
  
-  // Serial.println("x: " + String(currentPosition[0]) + " y: " + String(currentPosition[1]) + " z: " + currentPosition[2]);
-  readLoadCell();
+  // Serial.println("x: " + String(lastPosition.x) + " y: " + String(lastPosition.y) + " z: " + lastPosition.z);
+  // readLoadCell();
 }
 
 

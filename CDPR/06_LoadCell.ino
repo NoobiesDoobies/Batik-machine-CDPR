@@ -18,7 +18,7 @@ HX711_ADC LoadCell2(A4, A5);
 HX711_ADC LoadCell3(A2, A3);
 HX711_ADC LoadCell4(A0, A1);
 
-
+const float default_force_value = 0.0;
 
 void initLoadCell(){
   LoadCell1.begin();
@@ -110,34 +110,46 @@ void readLoadCell(){
       // Serial.print("Load_cell output val: ");
       float i = LoadCell1.getData();
       // Serial.print("(1)");
-      Serial.print(i);
-      Serial.print(" ");
+      force[0] = i;
       newDataReady1 = 0;
       t1 = millis();
 
       i = LoadCell2.getData();
       // Serial.print("(2)");
-      Serial.print(i);
-      Serial.print(" ");
+      force[1] = i;
       newDataReady2 = 0;
       t2 = millis();
 
 
       i = LoadCell3.getData();
       // Serial.print("(3)");
-      Serial.print(i);
-      Serial.print(" ");
+      force[2] = i;
       newDataReady3 = 0;
       t3 = millis();
 
       i = LoadCell4.getData();
       // Serial.print("(4)");
-      Serial.print(i);
-      Serial.println(" ");
+      force[3] = i;
       newDataReady4 = 0;
       t4 = millis();
     }
   }
 
+  // // // Kalau force sensor gagal membaca pada iterasi tersebut, di-set ke sebuah value default
+  // else{
+    
+  //   for(int i=0; i<stepper_count;i++){
+  //     // Serial.print(String(force[i]) + " ");
+  //     // force[i] = default_force_value;
+  //   }
+  // }
+
   
+}
+
+
+void printLoadCellValue(){
+  for(int i=0; i<stepper_count;i++){
+    Serial.print(String(force[i]) + " ");
+  }
 }
