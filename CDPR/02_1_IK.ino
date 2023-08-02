@@ -10,6 +10,8 @@ float processedDecelerationFactor[n];
 float angles[n];
 float speeds[n];
 
+
+
 const float stepsPerRevolution = 1600.0 ;
 const float kelilingExtruder = PI*28.5 ; // mm
 const float stepAmount = kelilingExtruder/stepsPerRevolution; // mm/step
@@ -48,7 +50,6 @@ float l4Prev = l4;
 
 
 Point lastPosition;
-
 
 
 float getAngleBetweenPoints(struct Point point1, struct Point point2, struct Point point3){
@@ -102,7 +103,7 @@ void printAngleForEachPoint(){
 void calculateDecelerationFactor(){
   for (int i = 0; i < n; i++) {
     // decelerationFactor[i] = 1 - pow(angles[i]/M_PI, 2);
-    decelerationFactor[i] = pow(angles[i]/M_PI, 2);
+    decelerationFactor[i] = pow(angles[i]/M_PI, 5);
     // Serial.println(angle*180/M_PI);
     // Serial.println(String(i) + " " + String(angle*180/M_PI) + " " + String(n));
     // Serial.println(String(i) + " " + String(decelerationFactor[i]) );
@@ -186,6 +187,7 @@ void printStepsForEachPoint(){
   }
 }
 
+
 void mergePathForFirstIteration(){
   updateLPrev(points[n-1]);
   getStepForEachMotor(points[0], steps[0]);
@@ -199,19 +201,34 @@ void smoothingAccUsingMovingAvg(const float* data, int dataSize, int windowSize,
         int count = 0;
 
         // Calculate the sum of elements within the window
-        for (int j = i - windowSize / 2; j <= i + windowSize / 2; j++) {
+        for (int j = i - windowSize/2; j <= i + windowSize/2; j++) {
             int index = (j + dataSize) % dataSize; // Handle wrapping around the array
             sum += data[index];
             count++;
         }
 
         // Calculate the average and store it in the result array
-        double average = sum / count;
-        movingAverages[i] = (average)*SMOOTHING_MULTIPLIER ;
+        double average = 2*(sum - (avgData * count));
+        movingAverages[i] = average;
     }
 }
 
 
+// Numerical integration using the trapezoidal rule for an array of float values
+void integrate_array_trapezoidal(float *array, int size, float dx, float *result) {
+    if (size <= 1) {
+        // If there's only one element or the array is empty, return 0
+        result[0] = 0.0;
+        return;
+    }
+
+    double sum = 0.0;
+    for (int i = 1; i < size; i++) {
+        // Add the area of the trapezoid formed by the current and previous elements to the sum
+        sum += (array[i] + array[i - 1]) * dx / 2.0;
+        result[i] = constrain(sum, -1, 0.3);
+    }
+}
 
 
 

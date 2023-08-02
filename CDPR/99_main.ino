@@ -10,7 +10,7 @@ void setup() {
   // initWiFi();
   // initCirclePath(150.0);
   // initZeroPath();
-  // initSpiralPath(150.0, 0.00, 4);
+  // initSpiralP0ath(150.0, 0.00, 4);
   // initFlowerPath(150.0, 5);
   initRectanglePath(75.0,  75.0);
   // initEightPath(150.0);
@@ -38,9 +38,10 @@ void setup() {
 
   // printProcessedAngleForEachPoint();
 
+  integrate_array_trapezoidal(processedDecelerationFactor, n, 0.1, speeds);
   Serial.println("Sebelum\tSesudah\tAngle");
   for(int i = 0; i < n ; i++){
-    Serial.println(String(decelerationFactor[i]) + "\t" + String(processedDecelerationFactor[i]) + "\t" + String(angles[i]));
+    Serial.println(String(decelerationFactor[i]) + "\t" + String(processedDecelerationFactor[i]) + "\t" + String(speeds[i]) + "\t" + String(angles[i]));
   }
 }
 
@@ -93,7 +94,9 @@ void loop() {
       while(!Serial.available()){
         // autoCalibrateForce();
 
-        gerakStepper(steps[i], processedDecelerationFactor[i]);
+        gerakStepper(steps[i], speeds[i]);
+
+        // gerakStepper(steps[i], speeds[i]);
 
         lastPosition.x = points[i].x;
         lastPosition.y = points[i].y;

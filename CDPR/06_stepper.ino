@@ -1,8 +1,6 @@
 #include <digitalWriteFast.h>
 
-const float maxSpeed = 1.0;
-const int minDelayPerStep = 50; // us
-const int maxDelayPerStep = 1000;
+
 // Define stepper motor connections and steps per revolution:
 const int dirPin1 = 9;
 const int stepPin1 = 8;
@@ -48,12 +46,12 @@ float smoothStepFunction(float x) {
 
 
 int convertSpeedToDelayus(float speed){
-  speed = constrain(speed, 0, 1);
+  // speed = constrain(speed, 0, 1);
   return (minDelayPerStep - maxDelayPerStep) * speed + maxDelayPerStep;
 }
 
 void step(int pin, float speed) {
-  speed = constrain(speed, 0, 1);
+  // speed = constrain(speed, 0, 1);
   digitalWriteFast(pin, HIGH);
   // delayMicroseconds(200);
   delayMicroseconds(convertSpeedToDelayus(speed));
