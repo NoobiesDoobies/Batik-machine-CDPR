@@ -3,7 +3,6 @@ struct Point {
   float y;
   float z;
 };
-const int n = 100;
 
 struct Point points[n];
 float decelerationFactor[n];
@@ -25,6 +24,15 @@ const float effectorHeight = 40.0; // mm
 const float vertexRadius = 60.0;   // mm
 const float zBias = 170.0;
 
+// const float boxLength = 980.0;     // mm
+// const float boxWidth = 480.0;      // mm
+// const float boxHeight = 600.0;     // mm
+// const float effectorLength = 0; // mm
+// const float effectorWidth = 0;  // mm
+// const float effectorHeight = 40.0; // mm
+// const float vertexRadius = 60.0;   // mm
+// const float zBias = 170.0;
+
 
 // Setup constants
 float l1 = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(boxWidth/2.0 - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0) + pow(zBias, 2.0));
@@ -41,8 +49,7 @@ float l4Prev = l4;
 
 Point lastPosition;
 
-const float SMOOTHING_MULTIPLIER = 1;
-const int SMOOTHING_WINDOW_SIZE = 3;
+
 
 float getAngleBetweenPoints(struct Point point1, struct Point point2, struct Point point3){
     float a1 = point3.x - point2.x;
@@ -186,7 +193,7 @@ void mergePathForFirstIteration(){
 
 
 void smoothingAccUsingMovingAvg(const float* data, int dataSize, int windowSize, float* movingAverages) {
-    const float avgData = average(data);
+    const float avgData = average(data, dataSize);
     for (int i = 0; i < dataSize; i++) {
         double sum = 0;
         int count = 0;
@@ -204,13 +211,7 @@ void smoothingAccUsingMovingAvg(const float* data, int dataSize, int windowSize,
     }
 }
 
-float average (float *array) {
-  float sum = 0L ;
-  for (int i = 0 ; i < n ; i++){
-    sum += array [i] ;
-  }
-  return  ((float) sum) / n ; 
-}
+
 
 
 

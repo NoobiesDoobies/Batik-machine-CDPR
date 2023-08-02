@@ -11,7 +11,9 @@ void initCirclePath(float R){
   for (int i = 0; i < n; i++) {
     points[i].x = R*cosf(i/(float)n*2*PI) + boxLength/2.0;
     points[i].y = R*sinf(i/(float)n*2*PI) + boxWidth/2.0;
-    points[i].z = zBias+150.0;
+    // points[i].z = zBias+150.0;
+    points[i].z = zBias;
+
 
     // Serial.print("(COORDINATE)\t");
     // Serial.println("x: " + String(points[i].x) + "\ty: " + String(points[i].y));

@@ -8,16 +8,15 @@ void setup() {
   Serial.begin(9600);
 
   // initWiFi();
-  // initFirstPoint();
-  initCirclePath(150.0);
+  // initCirclePath(150.0);
   // initZeroPath();
   // initSpiralPath(150.0, 0.00, 4);
   // initFlowerPath(150.0, 5);
-  // initRectanglePath(75.0,  75.0);
+  initRectanglePath(75.0,  75.0);
   // initEightPath(150.0);
 
   initStepper();
-  initLoadCell();
+  // initLoadCell();
 
   // handleGetRoot();
   // server.addHandler(&events);
@@ -39,10 +38,10 @@ void setup() {
 
   // printProcessedAngleForEachPoint();
 
-  // Serial.println("Sebelum\tSesudah\tAngle");
-  // for(int i = 0; i < n ; i++){
-  //   Serial.println(String(decelerationFactor[i]) + "\t" + String(processedDecelerationFactor[i]) + "\t" + String(angles[i]));
-  // }
+  Serial.println("Sebelum\tSesudah\tAngle");
+  for(int i = 0; i < n ; i++){
+    Serial.println(String(decelerationFactor[i]) + "\t" + String(processedDecelerationFactor[i]) + "\t" + String(angles[i]));
+  }
 }
 
 
@@ -67,10 +66,12 @@ void loop() {
       // Serial.print(String(tempSteps[2]) + " ");
       // Serial.println(String(tempSteps[3]));
       gerakStepper(tempSteps, 0.5);
+      emptyCompensateCounter();
 
       lastPosition = home;
 
       programStart = -999;
+
       
 
       break;
@@ -81,7 +82,7 @@ void loop() {
       Point home = {boxLength/2.0, boxWidth/2.0, zBias};
       updateLPrev(home);
       getStepForEachMotor(points[0], tempSteps);
-      // gerakStepper(tempSteps, 0.5);
+      gerakStepper(tempSteps, 0.5);
       // Serial.print("Initial step\t");
       // Serial.println(tempSteps[0]);
       // Serial.println("Done initial step");
@@ -90,19 +91,18 @@ void loop() {
       Serial.flush();
       Serial.read();
       while(!Serial.available()){
+        // autoCalibrateForce();
 
         gerakStepper(steps[i], processedDecelerationFactor[i]);
 
         lastPosition.x = points[i].x;
         lastPosition.y = points[i].y;
         lastPosition.z = points[i].z;
-        // printStepsForEachPoint();
-        // Serial.print("(LOAD CELL) " + String(i) + "\t");
-        readLoadCell();
+
+        // readLoadCell();
         // printLoadCellValue();
-        // autoCalibrateForce();
         // printCompensateCounter();
-        Serial.println();
+        // Serial.println();
 
         i++;
         if(i == n){
@@ -149,6 +149,11 @@ void loop() {
  
   // Serial.println("x: " + String(lastPosition.x) + " y: " + String(lastPosition.y) + " z: " + lastPosition.z);
   // readLoadCell();
+  // printLoadCellValue();
+  // printCompensateCounter();
+
+  // Serial.println();
+
 }
 
 

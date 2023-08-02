@@ -12,12 +12,15 @@ unsigned long t2 = 0;
 unsigned long t3 = 0;
 unsigned long t4 = 0;
 
+float force[4] = {0,0,0,0};
+int compensateCounter[4] = {0,0,0,0};
 
 HX711_ADC LoadCell1(A6, A7);
 HX711_ADC LoadCell2(A4, A5);
 HX711_ADC LoadCell3(A2, A3);
 HX711_ADC LoadCell4(A0, A1);
 
+float avg_force = 0.0;
 const float default_force_value = 0.0;
 
 void initLoadCell(){
@@ -83,7 +86,7 @@ void initLoadCell(){
     EEPROM.get(calVal_eepromAdress4, newCalibrationValue);
     Serial.println("Cal value4: " + String(newCalibrationValue));
     LoadCell4.setCalFactor(newCalibrationValue); // user set calibration value (float), initial value 1.0 may be used for this sketch
-    Serial.println("Startup is complete4");
+    Serial.println("Startup is complete 4");
   }
   while (!LoadCell4.update());
 }
@@ -132,6 +135,8 @@ void readLoadCell(){
       force[3] = i;
       newDataReady4 = 0;
       t4 = millis();
+
+      avg_force = average(force, stepper_count);
     }
   }
 
@@ -152,4 +157,5 @@ void printLoadCellValue(){
   for(int i=0; i<stepper_count;i++){
     Serial.print(String(force[i]) + " ");
   }
+  Serial.print(String(avg_force) + " ");
 }
