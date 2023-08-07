@@ -11,8 +11,8 @@ void initCirclePath(float R){
   for (int i = 0; i < n; i++) {
     points[i].x = R*cosf(i/(float)n*2*PI) + boxLength/2.0;
     points[i].y = R*sinf(i/(float)n*2*PI) + boxWidth/2.0;
-    // points[i].z = zBias+150.0;
-    points[i].z = zBias;
+    points[i].z = zBias+150.0;
+    // points[i].z = zBias;
 
 
     // Serial.print("(COORDINATE)\t");
@@ -34,7 +34,7 @@ void initEllipsePath(float a, float b){
 void initFlowerPath(float R, int petalCount){
   for (int i = 0; i < n; i++) {
     float angle = i / static_cast<float>(n) * 2 * M_PI;
-    float x = R * cosf(angle) * cosf(petalCount * angle) + boxLength/2.0;
+    float x = R * cosf(angle) *  cosf(petalCount * angle) + boxLength/2.0;
     float y = R * sinf(angle) * cosf(petalCount * angle) + boxWidth/2.0;
     points[i].x = x;
     points[i].y = y;
@@ -69,7 +69,7 @@ void initSpiralPath(float startRadius, float finalRadius, float numTurns) {
         float radius = startRadius - spacing * i; // Decrease the radius with each turn
         points[i].x = radius * cosf(angle) + boxLength / 2.0;
         points[i].y = radius * sinf(angle) + boxWidth / 2.0;
-        points[i].z = zBias;
+        points[i].z = zBias + 150.0;
     }
 }
 

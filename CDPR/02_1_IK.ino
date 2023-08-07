@@ -103,7 +103,7 @@ void printAngleForEachPoint(){
 void calculateDecelerationFactor(){
   for (int i = 0; i < n; i++) {
     // decelerationFactor[i] = 1 - pow(angles[i]/M_PI, 2);
-    decelerationFactor[i] = pow(angles[i]/M_PI, 5);
+    decelerationFactor[i] =  2*angles[i]/M_PI - 1;
     // Serial.println(angle*180/M_PI);
     // Serial.println(String(i) + " " + String(angle*180/M_PI) + " " + String(n));
     // Serial.println(String(i) + " " + String(decelerationFactor[i]) );
@@ -195,22 +195,30 @@ void mergePathForFirstIteration(){
 
 
 void smoothingAccUsingMovingAvg(const float* data, int dataSize, int windowSize, float* movingAverages) {
-    const float avgData = average(data, dataSize);
+    // const float avgData = average(data, dataSize);
     for (int i = 0; i < dataSize; i++) {
         double sum = 0;
         int count = 0;
 
         // Calculate the sum of elements within the window
-        for (int j = i - windowSize/2; j <= i + windowSize/2; j++) {
+        for (int j = i - windowSize/2 ; j <= i + windowSize/2; j++) {
             int index = (j + dataSize) % dataSize; // Handle wrapping around the array
             sum += data[index];
             count++;
         }
 
         // Calculate the average and store it in the result array
-        double average = 2*(sum - (avgData * count));
-        movingAverages[i] = average;
+        double average = sum/count;
+        movingAverages[i] = average*average;
     }
+}
+
+void smoothingAccUsingFilter(const float* data, int dataSize, float* filteredData, float percentage){
+  float prev = data[dataSize-1];
+  for(int i = 0; i < dataSize; i++){
+    filteredData[i] = prev*percentage + data[i]*(1-percentage);
+    prev = data[i];
+  }
 }
 
 
@@ -228,6 +236,19 @@ void integrate_array_trapezoidal(float *array, int size, float dx, float *result
         sum += (array[i] + array[i - 1]) * dx / 2.0;
         result[i] = constrain(sum, -1, 0.3);
     }
+}
+
+
+void stretchAccUsingMapping(float *array, float* result, int size){
+  float maxA = findMax(array, size);  
+  float minA = findMin(array, size);
+  float maxB = findMax(result, size);
+  float minB = findMin(result, size);
+
+
+  for(int i=0; i<size; i++){
+    result[i] = fmap(result[i], minB, maxB, minA, maxA);
+  }
 }
 
 

@@ -10,8 +10,8 @@ void setup() {
   // initWiFi();
   // initCirclePath(150.0);
   // initZeroPath();
-  // initSpiralP0ath(150.0, 0.00, 4);
-  // initFlowerPath(150.0, 5);
+  // initSpiralPath(150.0, 0.00, 4);
+  // initFlowerPath(150.0, 3);
   initRectanglePath(75.0,  75.0);
   // initEightPath(150.0);
 
@@ -31,6 +31,9 @@ void setup() {
 
   calculateDecelerationFactor();
   smoothingAccUsingMovingAvg(decelerationFactor, n, SMOOTHING_WINDOW_SIZE, processedDecelerationFactor);
+  // smoothingAccUsingFilter(decelerationFactor, n, processedDecelerationFactor, 0.4);
+
+  stretchAccUsingMapping(decelerationFactor, processedDecelerationFactor, n);
 
   // printAngleForEachPoint();
   // printStepsForEac hPoint();
@@ -38,10 +41,10 @@ void setup() {
 
   // printProcessedAngleForEachPoint();
 
-  integrate_array_trapezoidal(processedDecelerationFactor, n, 0.1, speeds);
+  // integrate_array_trapezoidal(processedDecelerationFactor, n, 0.1, speeds);
   Serial.println("Sebelum\tSesudah\tAngle");
   for(int i = 0; i < n ; i++){
-    Serial.println(String(decelerationFactor[i]) + "\t" + String(processedDecelerationFactor[i]) + "\t" + String(speeds[i]) + "\t" + String(angles[i]));
+    Serial.println(String(decelerationFactor[i]) + "\t" + String(processedDecelerationFactor[i]) + "\t" + String(angles[i]) + "\t" + String((float)convertSpeedToDelayus(processedDecelerationFactor[i])/100.0));
   }
 }
 
@@ -66,7 +69,7 @@ void loop() {
       // Serial.print(String(tempSteps[1]) + " ");
       // Serial.print(String(tempSteps[2]) + " ");
       // Serial.println(String(tempSteps[3]));
-      gerakStepper(tempSteps, 0.5);
+      gerakStepper(tempSteps);
       emptyCompensateCounter();
 
       lastPosition = home;
@@ -83,7 +86,7 @@ void loop() {
       Point home = {boxLength/2.0, boxWidth/2.0, zBias};
       updateLPrev(home);
       getStepForEachMotor(points[0], tempSteps);
-      gerakStepper(tempSteps, 0.5);
+      gerakStepper(tempSteps);
       // Serial.print("Initial step\t");
       // Serial.println(tempSteps[0]);
       // Serial.println("Done initial step");
@@ -91,10 +94,18 @@ void loop() {
       int i = 1;
       Serial.flush();
       Serial.read();
-      while(!Serial.available()){
+      bool first = true;
+      while(!Serial.available())
         // autoCalibrateForce();
+        if(first && i==1){
+          smoothStart(4)0;
+          i=4;
+          first = false;
+        }
+        else{
+          gerakStepper(steps[i], processedDecelerationFactor[(i==0) ? n-1 : i-1], processedDecelerationFactor[i]);
+        }
 
-        gerakStepper(steps[i], speeds[i]);
 
         // gerakStepper(steps[i], speeds[i]);
 
@@ -106,7 +117,6 @@ void loop() {
         // printLoadCellValue();
         // printCompensateCounter();
         // Serial.println();
-
         i++;
         if(i == n){
           mergePathForFirstIteration();
@@ -134,7 +144,7 @@ void loop() {
       getStepForEachMotor(point, tempSteps);
       Serial.println(String(x) + " " + String(y));
 
-      gerakStepper(tempSteps, 0.5);
+      gerakStepper(tempSteps);
 
       lastPosition.x = x;
       lastPosition.y = y;

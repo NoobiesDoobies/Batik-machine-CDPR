@@ -47,7 +47,7 @@ float smoothStepFunction(float x) {
 
 int convertSpeedToDelayus(float speed){
   // speed = constrain(speed, 0, 1);
-  return (minDelayPerStep - maxDelayPerStep) * speed + maxDelayPerStep;
+  return (minDelayPerStep - maxDelayPerStep) * pow(speed, 1) + maxDelayPerStep;
 }
 
 void step(int pin, float speed) {
@@ -68,7 +68,7 @@ void stepWithoutDelay(int pin){
   delayMicroseconds(10);
 }
 
-void gerakStepper(int stepSizes[], float speed) {
+void gerakStepper(int stepSizes[], float speedPrev=0.0, float speedCurr=1.0) {
   // Maximum step
 
   int forceCalibratedStepSizes[stepper_count];
@@ -87,6 +87,8 @@ void gerakStepper(int stepSizes[], float speed) {
   
   // Step all the steppers simultaneously
   for (int i = 1; i <= stepMax; i++) {
+    float speed = interpolate(i, 1, stepMax, speedPrev, speedCurr);
+    // Serial.println(String(speed));
     // 1st stepper
     if (forceCalibratedStepSizes[0] != 0) {
       if ((int) floor(fmodf(i, (float) stepMax/fabs(forceCalibratedStepSizes[0]))) == 0) {
@@ -191,5 +193,15 @@ void emptyCompensateCounter(){
     for(int j=0; j<compensateCounter[i]; j++){
       stepWithoutDelay(stepPin[i]);  
     }
+  }
+}
+
+void smoothStart(int n){
+  float speed = 0.0;
+  float acceleration = processedDecelerationFactor[n]/n;
+  for(int i=1; i<=n; i++){
+    // Serial.println("speed: " + String(speed));
+    gerakStepper(steps[i], speed, speed+acceleration);
+    speed+=acceleration;
   }
 }
