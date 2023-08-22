@@ -95,7 +95,7 @@ void loop() {
       Serial.flush();
       Serial.read();
       bool first = true;
-      while(!Serial.available())
+      while(!Serial.available()){
         // autoCalibrateForce();
         if(first && i==1){
           smoothStart(4);
@@ -131,6 +131,7 @@ void loop() {
 
       break;
     }
+
     case '2':
     {
       Serial.print("x: y: ");
