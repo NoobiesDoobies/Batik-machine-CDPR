@@ -11,8 +11,8 @@ void setup() {
   // initCirclePath(150.0);
   // initZeroPath();
   // initSpiralPath(150.0, 0.00, 4);
-  // initFlowerPath(150.0, 3);
-  initRectanglePath(75.0,  75.0);
+  initFlowerPath(150.0, 3);
+  // initRectanglePath(75.0,  75.0);
   // initEightPath(150.0);
 
   initStepper();
@@ -98,7 +98,7 @@ void loop() {
       while(!Serial.available())
         // autoCalibrateForce();
         if(first && i==1){
-          smoothStart(4)0;
+          smoothStart(4);
           i=4;
           first = false;
         }
