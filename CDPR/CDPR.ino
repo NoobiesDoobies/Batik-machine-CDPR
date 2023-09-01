@@ -1,9 +1,9 @@
 /*
-  Code written by: Alfisena and Carlios
+  Code written by: Alfisena, Naufan, and Carlios
 */
 #define PROGRAM_NAME "CDPR"
 
-const int n = 100; // Jumlah titik
+const int n = 1000; // Jumlah titik
 const int stepper_count = 4;
 const float force_window = 0.0;
 const float KP_auto_calibrate = 0.05;

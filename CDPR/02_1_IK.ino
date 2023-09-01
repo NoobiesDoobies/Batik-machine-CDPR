@@ -1,17 +1,9 @@
 struct Point {
-  float x;
-  float y;
-  float z;
-};
-
-struct Point points[n];
-float decelerationFactor[n];
-float processedDecelerationFactor[n];
-float angles[n];
-float speeds[n];
-
-
-
+    float x;
+    float y;
+    float z;
+  };
+  
 const float stepsPerRevolution = 1600.0 ;
 const float kelilingExtruder = PI*28.5 ; // mm
 const float stepAmount = kelilingExtruder/stepsPerRevolution; // mm/step
@@ -41,7 +33,6 @@ float l1 = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(boxW
 float l2 = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(boxWidth/2.0 - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0) + pow(zBias, 2.0));
 float l3 = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(boxWidth/2.0 - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0) + pow(zBias, 2.0));
 float l4 = sqrt(pow(sqrt(pow(boxLength/2.0 - effectorLength/2.0, 2.0) + pow(boxWidth/2.0 - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0) + pow(zBias, 2.0));
-int steps[n][4];
 
 float l1Prev = l1;
 float l2Prev = l2;
@@ -79,7 +70,7 @@ float getAngleBetweenPoints(struct Point point1, struct Point point2, struct Poi
     return angle;
 }
 
-void calculateAngleForEachPoint(){
+void calculateAngleForEachPoint(struct Point points[], float angles[]){
   angles[0] = getAngleBetweenPoints(points[n-1], points[0], points[1]);
   for(int i = 1; i < n-1; i++){
     angles[i] = getAngleBetweenPoints(points[i-1], points[i], points[i+1]);  
@@ -88,7 +79,7 @@ void calculateAngleForEachPoint(){
 }
 
 
-void printAngleForEachPoint(){
+void printAngleForEachPoint(float angles[]){
   for(int i = 0; i<n; i++){
     Serial.println(String(angles[i]));
   }
@@ -100,7 +91,7 @@ void printAngleForEachPoint(){
 //   }
 // }
 
-void calculateDecelerationFactor(){
+void calculateDecelerationFactor(float decelerationFactor[], float angles[]){
   for (int i = 0; i < n; i++) {
     // decelerationFactor[i] = 1 - pow(angles[i]/M_PI, 2);
     decelerationFactor[i] =  2*angles[i]/M_PI - 1;
@@ -161,7 +152,7 @@ void updateLPrev(struct Point point){
   l4Prev = sqrt(pow(sqrt(pow(boxLength - (point.x + effectorLength/2.0), 2.0) + pow(point.y - effectorWidth/2.0, 2.0)) - vertexRadius, 2.0)              + pow(point.z, 2.0));
 }
 
-void calculateStepsForEachPoint(){
+void calculateStepsForEachPoint(struct Point points[], int steps[][4]){
   lastPosition.x = boxWidth/2.0;
   lastPosition.y = boxHeight/2.0;
   lastPosition.z = zBias;
@@ -174,7 +165,7 @@ void calculateStepsForEachPoint(){
 }
 
 
-void printStepsForEachPoint(){
+void printStepsForEachPoint(int steps[][4]){
   for (int i = 0; i < n; i++) {
     Serial.print("(steps " + String(i) + ")\t");
     Serial.print(String(steps[i][0]));
@@ -188,7 +179,7 @@ void printStepsForEachPoint(){
 }
 
 
-void mergePathForFirstIteration(){
+void mergePathForFirstIteration(struct Point points[], int steps[][4]){
   updateLPrev(points[n-1]);
   getStepForEachMotor(points[0], steps[0]);
 }

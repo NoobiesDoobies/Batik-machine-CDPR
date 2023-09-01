@@ -196,7 +196,7 @@ void emptyCompensateCounter(){
   }
 }
 
-void smoothStart(int n){
+void smoothStart(float processedDecelerationFactor[], int steps[][4], int n){
   float speed = 0.0;
   float acceleration = processedDecelerationFactor[n]/n;
   for(int i=1; i<=n; i++){

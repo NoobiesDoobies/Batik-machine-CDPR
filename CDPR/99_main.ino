@@ -6,14 +6,27 @@ bool isModified = false;
 
 void setup() {
   Serial.begin(9600);
-
   // initWiFi();
-  // initCirclePath(150.0);
-  // initZeroPath();
-  // initSpiralPath(150.0, 0.00, 4);
-  initFlowerPath(150.0, 3);
-  // initRectanglePath(75.0,  75.0);
-  // initEightPath(150.0);
+}
+
+void loop() {
+  while (Serial.available()) {
+    programStart = Serial.read();
+  }
+  
+  struct Point points[n];
+  float decelerationFactor[n];
+  float processedDecelerationFactor[n];
+  float angles[n];
+  float speeds[n];
+  int steps[n][4];
+
+  // initCirclePath(points, 150.0);
+  // initZeroPath(points);
+  // initSpiralPath(points, 150.0, 0.00, 4);
+  initFlowerPath(points, 150.0, 3);
+  // initRectanglePath(points, 75.0,  75.0);
+  // initEightPath(points, 150.0);
 
   initStepper();
   // initLoadCell();
@@ -23,13 +36,13 @@ void setup() {
   // Start server
   // server.begin();
   
-  // printCoordinateForEachPoint();
-  calculateStepsForEachPoint();
-  mergePathForFirstIteration();
+  // printCoordinateForEachPoint(points);
+  calculateStepsForEachPoint(points, steps);
+  mergePathForFirstIteration(points, steps);
 
-  calculateAngleForEachPoint();
+  calculateAngleForEachPoint(points, angles);
 
-  calculateDecelerationFactor();
+  calculateDecelerationFactor(decelerationFactor, angles);
   smoothingAccUsingMovingAvg(decelerationFactor, n, SMOOTHING_WINDOW_SIZE, processedDecelerationFactor);
   // smoothingAccUsingFilter(decelerationFactor, n, processedDecelerationFactor, 0.4);
 
@@ -46,13 +59,7 @@ void setup() {
   for(int i = 0; i < n ; i++){
     Serial.println(String(decelerationFactor[i]) + "\t" + String(processedDecelerationFactor[i]) + "\t" + String(angles[i]) + "\t" + String((float)convertSpeedToDelayus(processedDecelerationFactor[i])/100.0));
   }
-}
 
-
-void loop() {
-  while (Serial.available()) {
-    programStart = Serial.read();
-  }
   switch(programStart){
     case '0':
     {
@@ -98,7 +105,7 @@ void loop() {
       while(!Serial.available()){
         // autoCalibrateForce();
         if(first && i==1){
-          smoothStart(4);
+          smoothStart(processedDecelerationFactor, steps, 4);
           i=4;
           first = false;
         }
@@ -119,7 +126,7 @@ void loop() {
         // Serial.println();
         i++;
         if(i == n){
-          mergePathForFirstIteration();
+          mergePathForFirstIteration(points, steps);
           i = 0;
           // programStart = 0;
           // break;
